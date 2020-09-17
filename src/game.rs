@@ -2,9 +2,15 @@ use crate::deck::{Deck, DeckType};
 use crate::error::CardGameError;
 use crate::player::{Player};
 
-
+/// This trait handles all game logic when implemented
 pub trait GameBuilder {
+    /// This function initializes the game state
     fn initialize_game() -> Result<Game, CardGameError>;
+    /// This function is a delegate function that handles all player moves
+    /// defined for the game
+    /// 
+    /// # Arguments
+    /// `game` - The game state being manipulated for the move provided
     fn player_move(&mut self, game: &mut Game);
 }
 

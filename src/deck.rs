@@ -1,6 +1,6 @@
 use crate::error::CardGameError;
 
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum CardValue {
     Ace = 1,
     Two = 2,
@@ -18,7 +18,7 @@ pub enum CardValue {
     Joker = 14,
 }
 
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum CardSuit {
     Spades = 1,
     Clubs = 2,
@@ -139,6 +139,7 @@ impl Deck {
             Some(&self.discard_pile[self.discard_pile.len() - 1])
         }
     }
+    
     pub fn pop_top_discarded_card(&mut self) -> Option<Card> {
         if self.discard_pile.is_empty() {
             None
