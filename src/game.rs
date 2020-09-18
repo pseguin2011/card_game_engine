@@ -21,6 +21,8 @@ pub enum DefaultPlayerMoves {
 }
 
 impl GameBuilder for DefaultPlayerMoves {
+    /// Initializes the game with a single deck with Jokers, 4 players and 10 cards each,
+    /// and flips over the top card of the deck to the discard pile.
     fn initialize_game() -> Result<Game, CardGameError> {
         let mut deck = Deck::new(DeckType::WithJokers);
         let players = vec![
@@ -37,9 +39,12 @@ impl GameBuilder for DefaultPlayerMoves {
         Ok(Game {
             players,
             deck,
+            // sets the first to play as Player 1
             turn: 0,
         })
     }
+
+    /// Handles the player moves to drawing and discarding
     fn player_move(&mut self, game: &mut Game) {
         match self {
             DefaultPlayerMoves::Draw => {
@@ -49,7 +54,6 @@ impl GameBuilder for DefaultPlayerMoves {
             },
             DefaultPlayerMoves::Discard(card_index) => {
                 let card = game.players[game.turn].play_card_from_hand(*card_index);
-                println!("{:?}",&card);
                 game.deck.discard_card(card);
             },
         }
@@ -63,14 +67,20 @@ pub struct Game {
 }
 
 impl Game {
+    /// Delegates the creation of a new game to a GameBuilder
     pub fn new<B: GameBuilder>() -> Result<Game, CardGameError> {
         B::initialize_game()
     }
     
+    /// Delegates the current player's move to the provided GameBuilder implementor
+    /// 
+    /// # Argument
+    /// `builder` - A GameBuilder implementor that manipulates the game based on the player move
     pub fn player_move<B: GameBuilder>(&mut self, mut builder: B) {
         builder.player_move(self);
     }
 
+    /// Ends turn for the current player by incrementing the turn index
     pub fn end_turn(&mut self) {
         self.turn = (self.turn + 1) % self.players.len();
     }
