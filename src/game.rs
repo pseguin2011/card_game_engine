@@ -6,6 +6,9 @@ use crate::player::{Player};
 pub trait GameBuilder<E: CardGameError> {
     /// This function initializes the game state
     fn initialize_game() -> Result<Game, E>;
+}
+
+pub trait GameRunner<E: CardGameError> {
     /// This function is a delegate function that handles all player moves
     /// defined for the game
     /// 
@@ -20,7 +23,9 @@ pub enum DefaultPlayerMoves {
     Discard(usize),
 }
 
-impl GameBuilder<DefaultCardGameError> for DefaultPlayerMoves {
+pub struct DefaultGameBuilder;
+
+impl GameBuilder<DefaultCardGameError> for DefaultGameBuilder {
     /// Initializes the game with a single deck with Jokers, 4 players and 10 cards each,
     /// and flips over the top card of the deck to the discard pile.
     fn initialize_game() -> Result<Game, DefaultCardGameError> {
@@ -43,6 +48,9 @@ impl GameBuilder<DefaultCardGameError> for DefaultPlayerMoves {
             turn: 0,
         })
     }
+}
+
+impl GameRunner<DefaultCardGameError> for DefaultPlayerMoves {
 
     /// Handles the player moves to drawing and discarding
     fn player_move(&mut self, game: &mut Game) -> Result<(), DefaultCardGameError>{
@@ -82,8 +90,8 @@ impl Game {
     /// 
     /// # Returns
     /// Whether the player move succeeded
-    pub fn player_move<E: CardGameError, B: GameBuilder<E>>(&mut self, mut builder: B) -> Result<(), E> {
-        builder.player_move(self)
+    pub fn player_move<E: CardGameError, R: GameRunner<E>>(&mut self, mut runner: R) -> Result<(), E> {
+        runner.player_move(self)
     }
 
     /// Ends turn for the current player by incrementing the turn index
@@ -94,7 +102,7 @@ impl Game {
 
 #[test]
 fn test_builder() -> Result<(), DefaultCardGameError> {
-    let mut game = Game::new::<DefaultCardGameError, DefaultPlayerMoves>()?;
+    let mut game = Game::new::<DefaultCardGameError, DefaultGameBuilder>()?;
 
     game.player_move(DefaultPlayerMoves::Draw)?;
     assert_eq!(game.players[game.turn].hand.len(), 11);
