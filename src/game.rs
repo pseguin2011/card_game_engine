@@ -1,17 +1,17 @@
 use crate::deck::{Deck, DeckType};
-use crate::error::CardGameError;
+use crate::error::{CardGameError, DefaultCardGameError};
 use crate::player::{Player};
 
 /// This trait handles all game logic when implemented
-pub trait GameBuilder {
+pub trait GameBuilder<E: CardGameError> {
     /// This function initializes the game state
-    fn initialize_game() -> Result<Game, CardGameError>;
+    fn initialize_game() -> Result<Game, E>;
     /// This function is a delegate function that handles all player moves
     /// defined for the game
     /// 
     /// # Arguments
     /// `game` - The game state being manipulated for the move provided
-    fn player_move(&mut self, game: &mut Game);
+    fn player_move(&mut self, game: &mut Game) -> Result<(), E>;
 }
 
 #[derive(Clone, Copy)]
@@ -20,10 +20,10 @@ pub enum DefaultPlayerMoves {
     Discard(usize),
 }
 
-impl GameBuilder for DefaultPlayerMoves {
+impl GameBuilder<DefaultCardGameError> for DefaultPlayerMoves {
     /// Initializes the game with a single deck with Jokers, 4 players and 10 cards each,
     /// and flips over the top card of the deck to the discard pile.
-    fn initialize_game() -> Result<Game, CardGameError> {
+    fn initialize_game() -> Result<Game, DefaultCardGameError> {
         let mut deck = Deck::new(DeckType::WithJokers);
         let players = vec![
             Player::new("Player 1", deck.draw_cards(10)?),
@@ -45,11 +45,13 @@ impl GameBuilder for DefaultPlayerMoves {
     }
 
     /// Handles the player moves to drawing and discarding
-    fn player_move(&mut self, game: &mut Game) {
+    fn player_move(&mut self, game: &mut Game) -> Result<(), DefaultCardGameError>{
         match self {
             DefaultPlayerMoves::Draw => {
                 if let Some(card) = game.deck.draw_card() {
                     game.players[game.turn].add_card_to_hand(card);
+                } else {
+                    return Err(DefaultCardGameError::DeckEmpty);
                 }
             },
             DefaultPlayerMoves::Discard(card_index) => {
@@ -57,6 +59,7 @@ impl GameBuilder for DefaultPlayerMoves {
                 game.deck.discard_card(card);
             },
         }
+        Ok(())
     }
 }
 
@@ -68,7 +71,7 @@ pub struct Game {
 
 impl Game {
     /// Delegates the creation of a new game to a GameBuilder
-    pub fn new<B: GameBuilder>() -> Result<Game, CardGameError> {
+    pub fn new<E: CardGameError, B: GameBuilder<E>>() -> Result<Game, E> {
         B::initialize_game()
     }
     
@@ -76,8 +79,11 @@ impl Game {
     /// 
     /// # Argument
     /// `builder` - A GameBuilder implementor that manipulates the game based on the player move
-    pub fn player_move<B: GameBuilder>(&mut self, mut builder: B) {
-        builder.player_move(self);
+    /// 
+    /// # Returns
+    /// Whether the player move succeeded
+    pub fn player_move<E: CardGameError, B: GameBuilder<E>>(&mut self, mut builder: B) -> Result<(), E> {
+        builder.player_move(self)
     }
 
     /// Ends turn for the current player by incrementing the turn index
@@ -87,14 +93,14 @@ impl Game {
 }
 
 #[test]
-fn test_builder() -> Result<(), CardGameError> {
-    let mut game = Game::new::<DefaultPlayerMoves>()?;
+fn test_builder() -> Result<(), DefaultCardGameError> {
+    let mut game = Game::new::<DefaultCardGameError, DefaultPlayerMoves>()?;
 
-    game.player_move(DefaultPlayerMoves::Draw);
+    game.player_move(DefaultPlayerMoves::Draw)?;
     assert_eq!(game.players[game.turn].hand.len(), 11);
 
     let first_card = game.players[game.turn].hand[0].clone();
-    game.player_move(DefaultPlayerMoves::Discard(0));
+    game.player_move(DefaultPlayerMoves::Discard(0))?;
 
     assert_ne!(first_card, game.players[game.turn].hand[0]);
     assert_eq!(Some(&first_card), game.deck.peek_top_discarded_card());

@@ -1,22 +1,28 @@
 use std::{error as e, fmt};
 
+pub trait CardGameError: e::Error {}
+
 #[derive(Debug)]
-pub enum CardGameError {
+pub enum DefaultCardGameError {
     IncorrectCardNumberRequest,
+    DeckEmpty,
 }
 
-
-impl fmt::Display for CardGameError {
+impl fmt::Display for DefaultCardGameError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            CardGameError::IncorrectCardNumberRequest => write!(f, "Too Many Cards"),
+            DefaultCardGameError::IncorrectCardNumberRequest => write!(f, "Too Many Cards were requested"),
+            DefaultCardGameError::DeckEmpty => write!(f, "The deck is empty"),
         }
     }
 }
-impl e::Error for CardGameError {
+impl e::Error for DefaultCardGameError {
     fn description(&self) -> &str {
         match *self {
-            CardGameError::IncorrectCardNumberRequest => "Too Many Cards",
+            DefaultCardGameError::IncorrectCardNumberRequest =>  "Too Many Cards were requested",
+            DefaultCardGameError::DeckEmpty => "The deck is empty",
         }
     }
 }
+
+impl CardGameError for DefaultCardGameError {}

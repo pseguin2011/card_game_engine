@@ -1,4 +1,4 @@
-use crate::error::CardGameError;
+use crate::error::DefaultCardGameError;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum CardValue {
@@ -108,9 +108,9 @@ impl Deck {
     /// 
     /// ## Returns
     /// The `n` cards drawn from the deck
-    pub fn draw_cards(&mut self, amount: usize) -> Result<Vec<Card>, CardGameError> {
+    pub fn draw_cards(&mut self, amount: usize) -> Result<Vec<Card>, DefaultCardGameError> {
         if amount > self.deck.len() {
-            return Err(CardGameError::IncorrectCardNumberRequest)
+            return Err(DefaultCardGameError::IncorrectCardNumberRequest)
         }
         let mut cards = Vec::new();
         for _ in 0..amount {
