@@ -22,7 +22,20 @@ impl Player {
     }
 
     /// Removes the card from the player's hand
+    /// 
+    /// # Returns
+    /// The card being played
     pub fn play_card_from_hand(&mut self, index: usize) -> Card {
         self.hand.remove(index)
+    }
+
+    /// Takes hand from player and re-initializes a new hand
+    /// 
+    /// # Returns
+    /// The full hand of the player
+    pub fn take_hand(&mut self) -> Vec<Card> {
+        let hand = std::mem::take(&mut self.hand);
+        self.hand = Vec::new();
+        hand
     }
 }
