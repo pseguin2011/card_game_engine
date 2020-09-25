@@ -1,5 +1,5 @@
 use crate::deck::{Deck, DeckType};
-use crate::error::{CardGameError, DefaultCardGameError};
+use crate::error::{DefaultCardGameError};
 use crate::player::{Player};
 
 /// This trait handles all game logic when implemented
@@ -44,28 +44,28 @@ pub trait GameRunner {
     /// 
     /// # Arguments
     /// `game` - The game state being manipulated for the move provided
-    fn player_move(&mut self, game: &mut GameState) -> Result<(), Self::E>;
+    fn handle_move(&self, game: &mut GameState) -> Result<(), Self::E>;
 }
 
 #[derive(Clone, Copy)]
-pub enum DefaultPlayerMoves {
+pub enum DefaultActions {
     Draw,
     Discard(usize),
 }
 
-impl GameRunner for DefaultPlayerMoves {
+impl GameRunner for DefaultActions {
     type E = DefaultCardGameError;
     /// Handles the player moves to drawing and discarding
-    fn player_move(&mut self, game: &mut GameState) -> Result<(), Self::E>{
+    fn handle_move(&self, game: &mut GameState) -> Result<(), Self::E>{
         match self {
-            DefaultPlayerMoves::Draw => {
+            Self::Draw => {
                 if let Some(card) = game.deck.draw_card() {
                     game.players[game.turn].add_card_to_hand(card);
                 } else {
                     return Err(DefaultCardGameError::DeckEmpty);
                 }
             },
-            DefaultPlayerMoves::Discard(card_index) => {
+            Self::Discard(card_index) => {
                 let card = game.players[game.turn].play_card_from_hand(*card_index);
                 game.deck.discard_card(card);
             },
@@ -85,6 +85,24 @@ impl GameState {
     pub fn new<B: GameBuilder>() -> Result<GameState, B::E> {
         B::initialize_game()
     }
+
+    /// Ends turn for the current player by incrementing the turn index
+    pub fn end_turn(&mut self) {
+        self.turn = (self.turn + 1) % self.players.len();
+    }
+}
+
+pub struct Game {
+    pub state: GameState,
+}
+
+impl Game {
+    /// Delegates the creation of a new game to a GameBuilder
+    pub fn new_game<B: GameBuilder>() -> Result<Game, B::E> {
+        Ok(Game {
+            state: B::initialize_game()?,
+        })
+    }
     
     /// Delegates the current player's move to the provided GameBuilder implementor
     /// 
@@ -93,33 +111,34 @@ impl GameState {
     /// 
     /// # Returns
     /// Whether the player move succeeded
-    pub fn player_move<R: GameRunner>(&mut self, mut runner: R) -> Result<(), R::E> {
-        runner.player_move(self)
+    pub fn player_move<R: GameRunner>(&mut self, action: R) -> Result<(), R::E> {
+        action.handle_move(&mut self.state)
     }
 
     /// Ends turn for the current player by incrementing the turn index
     pub fn end_turn(&mut self) {
-        self.turn = (self.turn + 1) % self.players.len();
+        self.state.turn = (self.state.turn + 1) % self.state.players.len();
     }
 }
 
+
 #[test]
 fn test_builder() -> Result<(), DefaultCardGameError> {
-    let mut game = GameState::new::<DefaultGameBuilder>()?;
+    let mut game = Game::new_game::<DefaultGameBuilder>()?;
 
-    game.player_move(DefaultPlayerMoves::Draw)?;
-    assert_eq!(game.players[game.turn].hand.len(), 11);
+    game.player_move(DefaultActions::Draw)?;
+    assert_eq!(game.state.players[game.state.turn].hand.len(), 11);
 
-    let first_card = game.players[game.turn].hand[0].clone();
-    game.player_move(DefaultPlayerMoves::Discard(0))?;
+    let first_card = game.state.players[game.state.turn].hand[0].clone();
+    game.player_move(DefaultActions::Discard(0))?;
 
-    assert_ne!(first_card, game.players[game.turn].hand[0]);
-    assert_eq!(Some(&first_card), game.deck.peek_top_discarded_card());
-    assert_eq!(game.players[game.turn].hand.len(), 10);
+    assert_ne!(first_card, game.state.players[game.state.turn].hand[0]);
+    assert_eq!(Some(&first_card), game.state.deck.peek_top_discarded_card());
+    assert_eq!(game.state.players[game.state.turn].hand.len(), 10);
 
     game.end_turn();
 
-    assert_eq!(game.turn, 1);
+    assert_eq!(game.state.turn, 1);
     Ok(())
 
 }
