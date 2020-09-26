@@ -1,4 +1,4 @@
-use crate::deck::Card;
+use crate::models::deck::Card;
 
 #[derive(Debug)]
 pub struct Player {

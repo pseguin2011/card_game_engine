@@ -1,6 +1,6 @@
-use crate::deck::{Deck, DeckType};
+use crate::models::deck::{Deck, DeckType};
+use crate::models::player::{Player};
 use crate::error::{DefaultCardGameError};
-use crate::player::{Player};
 use crate::moves::{GameMove};
 
 /// This trait handles all game logic when implemented

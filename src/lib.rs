@@ -1,5 +1,5 @@
-pub mod deck;
-pub mod player;
 pub mod error;
-pub mod game;
-pub mod moves;
+pub mod models;
+mod engine;
+pub use engine::game;
+pub use engine::moves;
