@@ -112,13 +112,8 @@ impl Deck {
         if amount > self.deck.len() {
             return Err(DefaultCardGameError::IncorrectCardNumberRequest)
         }
-        let mut cards = Vec::new();
-        for _ in 0..amount {
-            if let Some(card) = self.draw_card() {
-                cards.push(card);
-            }
-        }
-        Ok(cards)
+    
+        Ok(self.deck.split_off(self.deck.len() - amount))
     }
 
     /// Draws a single card from the deck

@@ -1,7 +1,5 @@
 use std::{error as e, fmt};
 
-pub trait CardGameError: e::Error {}
-
 #[derive(Debug)]
 pub enum DefaultCardGameError {
     IncorrectCardNumberRequest,
@@ -24,5 +22,3 @@ impl e::Error for DefaultCardGameError {
         }
     }
 }
-
-impl CardGameError for DefaultCardGameError {}
