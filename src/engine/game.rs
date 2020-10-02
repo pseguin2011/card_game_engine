@@ -15,7 +15,7 @@ pub struct DefaultGameBuilder;
 
 impl GameBuilder for DefaultGameBuilder {
     type E = DefaultCardGameError;
-    type G = Game<GameState>;
+    type G = Game<DefaultGameState>;
     /// Initializes the game with a single deck with Jokers, 2 players and 10 cards each,
     /// and flips over the top card of the deck to the discard pile.
     fn initialize_game() -> Result<Self::G, Self::E> {
@@ -30,7 +30,7 @@ impl GameBuilder for DefaultGameBuilder {
         }
         
         let state = 
-            GameState {
+            DefaultGameState {
                 players,
                 deck,
                 turn: 0,
@@ -40,14 +40,24 @@ impl GameBuilder for DefaultGameBuilder {
     }
 }
 
-pub struct GameState {
+pub trait GameState {
+    fn end_turn(&mut self);
+}
+
+pub struct DefaultGameState {
     pub deck: Deck,
     pub players: Vec<Player>,
     pub turn: usize,
 }
 
+impl GameState for DefaultGameState {
+    fn end_turn(&mut self) {
+        self.turn = (self.turn + 1) % self.players.len();
+    }
+}
+
 pub trait GameRunner {
-    type State;
+    type State: GameState;
     /// Delegates the current player's move to the provided GameBuilder implementor
     /// 
     /// # Argument
@@ -60,38 +70,35 @@ pub trait GameRunner {
     }
 
     /// Ends turn for the current player by incrementing the turn index
-    fn end_turn(&mut self);
+    fn end_turn(&mut self) {
+        Self::get_game_state(self).end_turn();
+    }
 
     /// returns the current state of the game
     fn get_game_state(&mut self) -> &mut Self::State;
 }
 
-pub struct Game<State> {
-    pub state: State,
+pub struct Game<S: GameState> {
+    pub state: S,
 }
 
-impl<State> Game <State> {
+impl <S: GameState> Game <S> {
     /// Delegates the creation of a new game to a GameBuilder
     pub fn new_game<B: GameBuilder>() -> Result<B::G, B::E> {
         B::initialize_game()
     }
 }
 
-impl GameRunner for Game<GameState> {
-    type State = GameState;
+impl <S: GameState>GameRunner for Game<S> {
+    type State = S;
     fn get_game_state(&mut self) -> &mut Self::State {
         &mut self.state
-    }
-
-    fn end_turn(&mut self) {
-        let state = self.get_game_state();
-        state.turn = (state.turn + 1) % state.players.len();
     }
 }
 
 #[test]
 fn test_builder() -> Result<(), DefaultCardGameError> {
-    let mut game = Game::<GameState>::new_game::<DefaultGameBuilder>()?;
+    let mut game = Game::<DefaultGameState>::new_game::<DefaultGameBuilder>()?;
 
     game.player_move(crate::moves::DefaultMove::Draw)?;
     assert_eq!(game.state.players[game.state.turn].hand.len(), 11);

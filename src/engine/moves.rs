@@ -1,5 +1,5 @@
 use crate::error::DefaultCardGameError;
-use crate::game::GameState;
+use crate::game::DefaultGameState;
 
 pub trait GameMove<State> {
     type E;
@@ -17,10 +17,10 @@ pub enum DefaultMove {
     Discard(usize),
 }
 
-impl GameMove<GameState> for DefaultMove {
+impl GameMove<DefaultGameState> for DefaultMove {
     type E = DefaultCardGameError;
     /// Handles the player moves to drawing and discarding
-    fn handle_move(&self, game: &mut GameState) -> Result<(), Self::E>{
+    fn handle_move(&self, game: &mut DefaultGameState) -> Result<(), Self::E>{
         match self {
             Self::Draw => {
                 if let Some(card) = game.deck.draw_card() {
