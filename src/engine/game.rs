@@ -67,7 +67,7 @@ pub trait GameRunner {
 }
 
 pub struct Game<State> {
-    state: State,
+    pub state: State,
 }
 
 impl<State> Game <State> {
