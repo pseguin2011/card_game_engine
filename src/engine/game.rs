@@ -6,17 +6,19 @@ use crate::moves::{GameMove};
 /// This trait handles all game logic when implemented
 pub trait GameBuilder {
     type E;
+    type G;
     /// This function initializes the game with an initial state
-    fn initialize_game() -> Result<Game, Self::E>;
+    fn initialize_game() -> Result<Self::G, Self::E>;
 }
 
 pub struct DefaultGameBuilder;
 
 impl GameBuilder for DefaultGameBuilder {
     type E = DefaultCardGameError;
+    type G = Game<GameState>;
     /// Initializes the game with a single deck with Jokers, 2 players and 10 cards each,
     /// and flips over the top card of the deck to the discard pile.
-    fn initialize_game() -> Result<Game, Self::E> {
+    fn initialize_game() -> Result<Self::G, Self::E> {
         let mut deck = Deck::new(DeckType::WithJokers);
         let players = vec![
             Player::new("Player 1", deck.draw_cards(10)?),
@@ -60,23 +62,23 @@ pub trait GameRunner {
     /// Ends turn for the current player by incrementing the turn index
     fn end_turn(&mut self);
 
+    /// returns the current state of the game
     fn get_game_state(&mut self) -> &mut Self::State;
 }
 
-pub struct Game {
-    state: GameState,
+pub struct Game<State> {
+    state: State,
 }
 
-impl Game {
+impl<State> Game <State> {
     /// Delegates the creation of a new game to a GameBuilder
-    pub fn new_game<B: GameBuilder>() -> Result<Game, B::E> {
+    pub fn new_game<B: GameBuilder>() -> Result<B::G, B::E> {
         B::initialize_game()
     }
 }
 
-impl GameRunner for Game {
+impl GameRunner for Game<GameState> {
     type State = GameState;
-
     fn get_game_state(&mut self) -> &mut Self::State {
         &mut self.state
     }
@@ -89,7 +91,7 @@ impl GameRunner for Game {
 
 #[test]
 fn test_builder() -> Result<(), DefaultCardGameError> {
-    let mut game = Game::new_game::<DefaultGameBuilder>()?;
+    let mut game = Game::<GameState>::new_game::<DefaultGameBuilder>()?;
 
     game.player_move(crate::moves::DefaultMove::Draw)?;
     assert_eq!(game.state.players[game.state.turn].hand.len(), 11);
