@@ -1,14 +1,14 @@
 use crate::error::DefaultCardGameError;
 use crate::game::GameState;
 
-pub trait GameMove {
+pub trait GameMove<State> {
     type E;
     /// This function is a delegate function that handles all player moves
     /// defined for the game
     /// 
     /// # Arguments
     /// `game` - The game state being manipulated for the move provided
-    fn handle_move(&self, game: &mut GameState) -> Result<(), Self::E>;
+    fn handle_move(&self, game: &mut State) -> Result<(), Self::E>;
 }
 
 #[derive(Clone, Copy)]
@@ -17,7 +17,7 @@ pub enum DefaultMove {
     Discard(usize),
 }
 
-impl GameMove for DefaultMove {
+impl GameMove<GameState> for DefaultMove {
     type E = DefaultCardGameError;
     /// Handles the player moves to drawing and discarding
     fn handle_move(&self, game: &mut GameState) -> Result<(), Self::E>{

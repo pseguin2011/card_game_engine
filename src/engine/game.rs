@@ -45,7 +45,7 @@ pub struct GameState {
 }
 
 pub trait GameRunner {
-    
+    type State;
     /// Delegates the current player's move to the provided GameBuilder implementor
     /// 
     /// # Argument
@@ -53,17 +53,14 @@ pub trait GameRunner {
     /// 
     /// # Returns
     /// Whether the player move succeeded
-    fn player_move<M: GameMove>(&mut self, action: M) -> Result<(), M::E> {
+    fn player_move<M: GameMove<Self::State>>(&mut self, action: M) -> Result<(), M::E> {
         action.handle_move(self.get_game_state())
     }
 
     /// Ends turn for the current player by incrementing the turn index
-    fn end_turn(&mut self) {
-        let state = self.get_game_state();
-        state.turn = (state.turn + 1) % state.players.len();
-    }
+    fn end_turn(&mut self);
 
-    fn get_game_state(&mut self) -> &mut GameState;
+    fn get_game_state(&mut self) -> &mut Self::State;
 }
 
 pub struct Game {
@@ -78,8 +75,15 @@ impl Game {
 }
 
 impl GameRunner for Game {
-    fn get_game_state(&mut self) -> &mut GameState {
+    type State = GameState;
+
+    fn get_game_state(&mut self) -> &mut Self::State {
         &mut self.state
+    }
+
+    fn end_turn(&mut self) {
+        let state = self.get_game_state();
+        state.turn = (state.turn + 1) % state.players.len();
     }
 }
 
