@@ -44,6 +44,7 @@ pub trait GameState {
     fn end_turn(&mut self);
 }
 
+#[derive(Clone)]
 pub struct DefaultGameState {
     pub deck: Deck,
     pub players: Vec<Player>,
@@ -78,6 +79,7 @@ pub trait GameRunner {
     fn get_game_state(&mut self) -> &mut Self::State;
 }
 
+#[derive(Clone)]
 pub struct Game<S: GameState> {
     pub state: S,
 }

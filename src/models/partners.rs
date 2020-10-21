@@ -18,6 +18,7 @@ pub trait PartnerSharedHand {
     fn add_to_shared_hand(&mut self, card: Card);
 }
 
+#[derive(Clone)]
 pub struct Partners<'a> {
     pub player_a: Arc<Mutex<&'a mut Player>>,
     pub player_b: Arc<Mutex<&'a mut Player>>,

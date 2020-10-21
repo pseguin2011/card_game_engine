@@ -63,7 +63,7 @@ pub struct Card {
     pub suit: CardSuit,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Deck {
     deck: Vec<Card>,
     discard_pile: Vec<Card>,
