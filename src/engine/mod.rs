@@ -1,4 +1,4 @@
-pub mod game;
+pub mod builder;
 pub mod rules;
 pub mod state;
-pub mod builder;
+pub mod game;
