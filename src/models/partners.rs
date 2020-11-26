@@ -27,19 +27,20 @@ pub struct Partners<'a> {
     partner_shared_hand: Vec<Card>,
 }
 
-impl <'a> PartnerPoints for Partners<'a> {
+impl<'a> PartnerPoints for Partners<'a> {
     fn add_points(&mut self, cards: Vec<Card>) {
         for card in cards {
             match self.partner_points.get_mut(&card.value) {
                 Some(v) => v.push(card),
-                None => { self.partner_points.insert(card.value, vec![card]); },
+                None => {
+                    self.partner_points.insert(card.value, vec![card]);
+                }
             }
         }
     }
-
 }
 
-impl <'a> PartnerDiscardPile for Partners <'a> {
+impl<'a> PartnerDiscardPile for Partners<'a> {
     fn add_to_discard(&mut self, card: Card) {
         self.partner_discard.push(card);
     }
@@ -49,7 +50,7 @@ impl <'a> PartnerDiscardPile for Partners <'a> {
     }
 }
 
-impl <'a> PartnerSharedHand for Partners <'a> {
+impl<'a> PartnerSharedHand for Partners<'a> {
     fn get_shared_hand(&self) -> &[Card] {
         &self.partner_shared_hand
     }

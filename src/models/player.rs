@@ -22,7 +22,7 @@ impl Player {
     }
 
     /// Removes the card from the player's hand
-    /// 
+    ///
     /// # Returns
     /// The card being played
     pub fn play_card_from_hand(&mut self, index: usize) -> Card {
@@ -30,7 +30,7 @@ impl Player {
     }
 
     /// Takes hand from player and re-initializes a new hand
-    /// 
+    ///
     /// # Returns
     /// The full hand of the player
     pub fn take_hand(&mut self) -> Vec<Card> {

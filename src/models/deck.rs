@@ -28,7 +28,6 @@ pub enum CardSuit {
     Red = 6,
 }
 
-
 const CARDS: [CardValue; 13] = [
     CardValue::Ace,
     CardValue::Two,
@@ -75,15 +74,20 @@ impl Deck {
         let discard_pile: Vec<Card> = Vec::new();
         for suit in SUITS.to_vec() {
             for value in CARDS.to_vec() {
-                deck.push( Card { value, suit});
+                deck.push(Card { value, suit });
             }
         }
 
         if let DeckType::WithJokers = deck_type {
-            deck.push(Card { value: CardValue::Joker, suit: CardSuit::Black });
-            deck.push(Card { value: CardValue::Joker, suit: CardSuit::Red });
+            deck.push(Card {
+                value: CardValue::Joker,
+                suit: CardSuit::Black,
+            });
+            deck.push(Card {
+                value: CardValue::Joker,
+                suit: CardSuit::Red,
+            });
         }
-        
         Deck { deck, discard_pile }
     }
 
@@ -102,17 +106,16 @@ impl Deck {
     }
 
     /// Cycles through the amount of requested cards and returns the top `n` cards
-    /// 
+    ///
     /// ## Arguments
     /// `amount` - the number of cards drawn
-    /// 
+    ///
     /// ## Returns
     /// The `n` cards drawn from the deck
     pub fn draw_cards(&mut self, amount: usize) -> Result<Vec<Card>, DefaultCardGameError> {
         if amount > self.deck.len() {
-            return Err(DefaultCardGameError::IncorrectCardNumberRequest)
+            return Err(DefaultCardGameError::IncorrectCardNumberRequest);
         }
-    
         Ok(self.deck.split_off(self.deck.len() - amount))
     }
 
@@ -134,7 +137,6 @@ impl Deck {
             Some(&self.discard_pile[self.discard_pile.len() - 1])
         }
     }
-    
     pub fn pop_top_discarded_card(&mut self) -> Option<Card> {
         if self.discard_pile.is_empty() {
             None
