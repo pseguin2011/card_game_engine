@@ -7,7 +7,7 @@ type State = GameState;
 /// It manipulates a game state in the handle move and requires the implementation of how
 /// a game is ended and a round is ended
 
-pub trait GameRules<State, E> {
+pub trait GameRules<State: Clone, E> {
     /// This function is a delegate function that handles all player moves
     /// defined for the game
     ///

@@ -5,7 +5,6 @@ use crate::engine::rules::GameRules;
 
 /// A game is the `modifier` of game states based on the rules and state builder provided
 /// It requires the state used in the rules to be the same type as the one in the builder.
-#[derive(Clone)]
 pub struct Game<B: GameBuilder, R: GameRules<B::S, B::E>> {
     /// We require a builder to be specified statically
     phantom_builder: PhantomData<B>,

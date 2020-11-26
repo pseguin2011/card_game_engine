@@ -1,6 +1,7 @@
 use crate::models::deck::Deck;
 use crate::models::player::Player;
 
+#[derive(Clone)]
 pub struct GameState {
     pub deck: Deck,
     pub players: Vec<Player>,

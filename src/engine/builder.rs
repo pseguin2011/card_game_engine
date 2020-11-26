@@ -3,7 +3,7 @@ pub trait GameBuilder {
     /// Error type
     type E;
     /// Game State type
-    type S;
+    type S: Clone;
     /// This function initializes the game with an initial state
     fn initialize_game() -> Result<Self::S, Self::E>;
 }
