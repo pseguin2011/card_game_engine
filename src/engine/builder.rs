@@ -16,17 +16,16 @@ impl GameBuilder for DefaultBuilder {
 
     fn initialize_game() -> Result<Self::S, Self::E> {
         let mut deck = crate::models::deck::Deck::new(crate::models::deck::DeckType::WithJokers);
-        deck.extend(crate::models::deck::Deck::new(crate::models::deck::DeckType::WithJokers));
+        deck.extend(crate::models::deck::Deck::new(
+            crate::models::deck::DeckType::WithJokers,
+        ));
         deck.shuffle();
         let mut players = vec![];
-        
         for i in 0..4 {
-            players.push(
-                crate::models::player::Player {
-                    name: format!("Player {}", i),
-                    hand: deck.draw_cards(10)?,
-                }
-            );
+            players.push(crate::models::player::Player {
+                name: format!("Player {}", i),
+                hand: deck.draw_cards(10)?,
+            });
         }
 
         let state = Self::S {

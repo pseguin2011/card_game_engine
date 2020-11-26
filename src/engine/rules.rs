@@ -1,5 +1,5 @@
 use crate::error::DefaultCardGameError;
-use crate::state::{GameState};
+use crate::state::GameState;
 
 type State = GameState;
 
@@ -10,7 +10,7 @@ type State = GameState;
 pub trait GameRules<State, E> {
     /// This function is a delegate function that handles all player moves
     /// defined for the game
-    /// 
+    ///
     /// # Arguments
     /// `game` - The game state being manipulated for the move provided
     fn handle_move(&self, game: &mut State) -> Result<(), E>;
@@ -19,7 +19,7 @@ pub trait GameRules<State, E> {
     ///
     /// # Arguments
     /// `game` - The game state being manipulated for the move provided
-    fn is_game_over(game: &mut State)  -> Result<bool, E>;
+    fn is_game_over(game: &mut State) -> Result<bool, E>;
 
     /// This function defines if a game round is over for the provided game state
     ///
@@ -31,7 +31,7 @@ pub trait GameRules<State, E> {
     fn is_round_over(game: &mut State) -> Result<bool, E>;
 
     /// This function defines how a turn is ended for a provided game state
-    /// 
+    ///
     /// # Arguments
     /// `game` - The game state being manipulated to end the current players turn
     fn end_turn(game: &mut State);
@@ -46,29 +46,29 @@ pub enum DefaultMove {
 
 impl GameRules<State, DefaultCardGameError> for DefaultMove {
     /// Handles the player moves to drawing and discarding
-    fn handle_move(&self, state: &mut State) -> Result<(), DefaultCardGameError>{
+    fn handle_move(&self, state: &mut State) -> Result<(), DefaultCardGameError> {
         match self {
             Self::Draw => {
-                if let Some(card) = state.deck.draw_card()  {
-                        state.players[state.turn].add_card_to_hand(card);
+                if let Some(card) = state.deck.draw_card() {
+                    state.players[state.turn].add_card_to_hand(card);
                 } else {
                     return Err(DefaultCardGameError::DeckEmpty);
                 }
-            },
+            }
             Self::Discard(card_index) => {
                 let card = state.players[state.turn].play_card_from_hand(*card_index);
                 state.deck.discard_card(card);
-            },
+            }
         }
         Ok(())
     }
-    
-    fn is_game_over(_state: &mut State)  -> Result<bool, DefaultCardGameError> {
+
+    fn is_game_over(_state: &mut State) -> Result<bool, DefaultCardGameError> {
         // Default game state has no end game case
         Ok(false)
     }
 
-    fn is_round_over(_state: &mut State)  -> Result<bool, DefaultCardGameError> {
+    fn is_round_over(_state: &mut State) -> Result<bool, DefaultCardGameError> {
         // Default game state has no round over case
         Ok(false)
     }

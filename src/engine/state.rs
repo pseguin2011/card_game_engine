@@ -1,5 +1,5 @@
-use crate::models::player::Player;
 use crate::models::deck::Deck;
+use crate::models::player::Player;
 
 pub struct GameState {
     pub deck: Deck,
