@@ -17,18 +17,24 @@ pub trait GameRules<State: Clone, E> {
 
     /// This function describes the end case of a game for the provided game state
     ///
+    /// # Note
+    /// The DefaultCardGameError enum includes a GameOver error that should be thrown if the assertion fails
+    ///
     /// # Arguments
     /// `game` - The game state being manipulated for the move provided
-    fn is_game_over(game: &mut State) -> Result<bool, E>;
+    fn assert_game_over(game: &mut State) -> Result<(), E>;
 
     /// This function defines if a game round is over for the provided game state
     ///
     /// # Example
     /// A round could be over if a player hand is empty but the game could still be active
     ///
+    /// # Note
+    /// The DefaultCardGameError enum includes a RoundOver error that should be thrown if the assertion fails
+    ///
     /// # Arguments
     /// `game` - The game state being manipulated for the move provided
-    fn is_round_over(game: &mut State) -> Result<bool, E>;
+    fn assert_round_over(game: &mut State) -> Result<(), E>;
 
     /// This function defines how a turn is ended for a provided game state
     ///
@@ -63,14 +69,14 @@ impl GameRules<State, DefaultCardGameError> for DefaultMove {
         Ok(())
     }
 
-    fn is_game_over(_state: &mut State) -> Result<bool, DefaultCardGameError> {
+    fn assert_game_over(_state: &mut State) -> Result<(), DefaultCardGameError> {
         // Default game state has no end game case
-        Ok(false)
+        Ok(())
     }
 
-    fn is_round_over(_state: &mut State) -> Result<bool, DefaultCardGameError> {
+    fn assert_round_over(_state: &mut State) -> Result<(), DefaultCardGameError> {
         // Default game state has no round over case
-        Ok(false)
+        Ok(())
     }
 
     fn end_turn(state: &mut State) {

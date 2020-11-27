@@ -29,8 +29,8 @@ impl<B: GameBuilder, R: GameRules<B::S, B::E>> Game<B, R> {
     ///     * The game state is game over or round over
     ///     * An error occurred when applying the action to the state
     pub fn game_action(action: R, state: &mut B::S) -> Result<(), B::E> {
-        R::is_game_over(state)?;
-        R::is_round_over(state)?;
+        R::assert_game_over(state)?;
+        R::assert_round_over(state)?;
         R::handle_move(&action, state)?;
         Ok(())
     }
