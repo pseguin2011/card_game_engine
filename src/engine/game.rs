@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use crate::engine::builder::GameBuilder;
-use crate::engine::rules::GameRules;
+use crate::engine::rules::{GameRules, GameStatus};
 
 /// A game is the `modifier` of game states based on the rules and state builder provided
 /// It requires the state used in the rules to be the same type as the one in the builder.
@@ -18,6 +18,20 @@ impl<B: GameBuilder, R: GameRules<B::S, B::E>> Game<B, R> {
         B::initialize_game()
     }
 
+    /// Returns the status of the provided game state
+    ///
+    /// # Arguments
+    /// `state` - The state being checked
+    pub fn get_game_status(state: &mut B::S) -> GameStatus {
+        if R::is_game_over(state) {
+            GameStatus::GameOver
+        } else if R::is_round_over(state) {
+            GameStatus::RoundOver
+        } else {
+            GameStatus::Active
+        }
+    }
+
     /// Applies the provided action to the state granted that no end case has occured
     ///
     /// # Arguments
@@ -28,11 +42,14 @@ impl<B: GameBuilder, R: GameRules<B::S, B::E>> Game<B, R> {
     /// An error will be returned that the action cannot be executed if:
     ///     * The game state is game over or round over
     ///     * An error occurred when applying the action to the state
-    pub fn game_action(action: R, state: &mut B::S) -> Result<(), B::E> {
-        R::assert_game_over(state)?;
-        R::assert_round_over(state)?;
-        R::handle_move(&action, state)?;
-        Ok(())
+    pub fn game_action(action: R, state: &mut B::S) -> Result<GameStatus, B::E> {
+        if R::is_game_over(state) {
+            return Ok(GameStatus::GameOver);
+        }
+        if R::is_round_over(state) {
+            return Ok(GameStatus::RoundOver);
+        }
+        R::handle_move(&action, state)
     }
 
     /// Ends turn for the current state as specified by the ruleset
