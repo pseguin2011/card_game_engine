@@ -4,6 +4,7 @@ use crate::state::GameState;
 type State = GameState;
 
 /// A game status representation
+#[derive(Debug, PartialEq)]
 pub enum GameStatus {
     Active,
     RoundOver,
@@ -76,17 +77,39 @@ impl GameRules<State, DefaultCardGameError> for DefaultMove {
         Ok(GameStatus::Active)
     }
 
-    fn is_game_over(_state: &mut State) -> bool {
-        // Default game state has no end game case
+    /// The game is over
+    fn is_game_over(state: &mut State) -> bool {
+        for p in state.players.iter() {
+            if p.hand.is_empty() {
+                return true;
+            }
+        }
         false
     }
 
-    fn is_round_over(_state: &mut State) -> bool {
-        // Default game state has no round over case
+    /// The round is over when any player no longer has cards in their hand
+    fn is_round_over(state: &mut State) -> bool {
+        for p in state.players.iter() {
+            if p.hand.is_empty() {
+                return true;
+            }
+        }
         false
     }
 
     fn end_turn(state: &mut State) {
         state.next_turn();
     }
+}
+
+#[test]
+fn test_status_assertions() {
+    type TestGame =
+        crate::engine::game::Game<crate::builder::DefaultBuilder, crate::rules::DefaultMove>;
+    let mut game = TestGame::new_game().unwrap();
+    assert!(!DefaultMove::is_game_over(&mut game));
+    assert!(!DefaultMove::is_round_over(&mut game));
+    game.players[0].hand.clear();
+    assert!(DefaultMove::is_game_over(&mut game));
+    assert!(DefaultMove::is_round_over(&mut game));
 }

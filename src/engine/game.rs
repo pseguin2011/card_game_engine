@@ -81,3 +81,29 @@ fn test_builder() -> Result<(), crate::error::DefaultCardGameError> {
     assert_eq!(game_state.turn, 1);
     Ok(())
 }
+
+#[test]
+fn test_status_updates_on_action() -> Result<(), crate::error::DefaultCardGameError> {
+    type TestGame = Game<crate::builder::DefaultBuilder, crate::rules::DefaultMove>;
+    let mut game_state = TestGame::new_game()?;
+
+    assert_eq!(
+        TestGame::game_action(crate::rules::DefaultMove::Draw, &mut game_state)?,
+        GameStatus::Active
+    );
+    assert_eq!(game_state.players[game_state.turn].hand.len(), 11);
+
+    assert_eq!(
+        TestGame::game_action(crate::rules::DefaultMove::Discard(0), &mut game_state)?,
+        GameStatus::Active
+    );
+
+    game_state.players[0].hand.clear();
+
+    assert_eq!(
+        TestGame::game_action(crate::rules::DefaultMove::Discard(0), &mut game_state)?,
+        GameStatus::GameOver
+    );
+
+    Ok(())
+}
