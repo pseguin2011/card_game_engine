@@ -1,8 +1,8 @@
-use crate::models::player::Player;
+use crate::models::card::{Card, CardValue};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-use super::card::{Card, CardValue};
+use super::Player;
 
 pub trait PartnerPoints {
     fn add_points(&mut self, cards: Vec<Card>);
@@ -20,15 +20,13 @@ pub trait PartnerSharedHand {
 }
 
 #[derive(Clone)]
-pub struct Partners<'a> {
+pub struct Team<'a> {
     pub player_a: Arc<Mutex<&'a mut Player>>,
     pub player_b: Arc<Mutex<&'a mut Player>>,
     partner_points: HashMap<CardValue, Vec<Card>>,
-    partner_discard: Vec<Card>,
-    partner_shared_hand: Vec<Card>,
 }
 
-impl<'a> PartnerPoints for Partners<'a> {
+impl<'a> PartnerPoints for Team<'a> {
     fn add_points(&mut self, cards: Vec<Card>) {
         for card in cards {
             match self.partner_points.get_mut(&card.value) {
@@ -38,29 +36,5 @@ impl<'a> PartnerPoints for Partners<'a> {
                 }
             }
         }
-    }
-}
-
-impl<'a> PartnerDiscardPile for Partners<'a> {
-    fn add_to_discard(&mut self, card: Card) {
-        self.partner_discard.push(card);
-    }
-
-    fn take_from_discard(&mut self, index: usize) -> Card {
-        self.partner_discard.remove(index)
-    }
-}
-
-impl<'a> PartnerSharedHand for Partners<'a> {
-    fn get_shared_hand(&self) -> &[Card] {
-        &self.partner_shared_hand
-    }
-
-    fn take_from_shared_hand(&mut self, index: usize) -> Card {
-        self.partner_shared_hand.remove(index)
-    }
-
-    fn add_to_shared_hand(&mut self, card: Card) {
-        self.partner_shared_hand.push(card);
     }
 }

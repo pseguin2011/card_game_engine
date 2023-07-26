@@ -1,4 +1,4 @@
-use super::card::Card;
+use crate::models::card::Card;
 
 #[derive(Debug, Clone)]
 pub struct Player {

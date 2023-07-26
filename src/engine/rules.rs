@@ -1,7 +1,7 @@
 use crate::error::DefaultCardGameError;
-use crate::state::GameState;
+use crate::state::Game;
 
-type State = GameState;
+type State = Game<'static>;
 
 /// A game status representation
 #[derive(Debug, PartialEq)]
