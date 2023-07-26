@@ -3,7 +3,8 @@ use crate::models::player::Player;
 
 #[derive(Clone)]
 pub struct GameState {
-    pub deck: Deck,
+    pub draw: Deck,
+    pub discard: Deck,
     pub players: Vec<Player>,
     pub turn: usize,
 }

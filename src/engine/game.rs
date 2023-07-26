@@ -73,7 +73,7 @@ fn test_builder() -> Result<(), crate::error::DefaultCardGameError> {
     TestGame::game_action(crate::rules::DefaultMove::Discard(0), &mut game_state)?;
 
     assert_ne!(first_card, game_state.players[game_state.turn].hand[0]);
-    assert_eq!(Some(&first_card), game_state.deck.peek_top_discarded_card());
+    assert_eq!(Some(&first_card), game_state.discard.peek());
     assert_eq!(game_state.players[game_state.turn].hand.len(), 10);
 
     TestGame::end_turn(&mut game_state);

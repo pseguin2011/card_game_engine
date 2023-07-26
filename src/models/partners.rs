@@ -1,7 +1,8 @@
-use crate::models::deck::{Card, CardValue};
 use crate::models::player::Player;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+
+use super::card::{Card, CardValue};
 
 pub trait PartnerPoints {
     fn add_points(&mut self, cards: Vec<Card>);

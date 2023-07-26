@@ -63,7 +63,7 @@ impl GameRules<State, DefaultCardGameError> for DefaultMove {
     fn handle_move(&self, state: &mut State) -> Result<GameStatus, DefaultCardGameError> {
         match self {
             Self::Draw => {
-                if let Some(card) = state.deck.draw_card() {
+                if let Some(card) = state.draw.pop() {
                     state.players[state.turn].add_card_to_hand(card);
                 } else {
                     return Err(DefaultCardGameError::DeckEmpty);
@@ -71,7 +71,7 @@ impl GameRules<State, DefaultCardGameError> for DefaultMove {
             }
             Self::Discard(card_index) => {
                 let card = state.players[state.turn].play_card_from_hand(*card_index);
-                state.deck.discard_card(card);
+                state.draw.push(card);
             }
         }
         Ok(GameStatus::Active)

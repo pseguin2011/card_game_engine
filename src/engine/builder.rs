@@ -1,3 +1,5 @@
+use crate::models::{card::DeckType, deck::Deck};
+
 /// This trait builds an initial game state
 pub trait GameBuilder {
     /// Error type
@@ -15,21 +17,22 @@ impl GameBuilder for DefaultBuilder {
     type S = crate::state::GameState;
 
     fn initialize_game() -> Result<Self::S, Self::E> {
-        let mut deck = crate::models::deck::Deck::new(crate::models::deck::DeckType::WithJokers);
-        deck.extend(crate::models::deck::Deck::new(
-            crate::models::deck::DeckType::WithJokers,
+        let mut draw = Deck::new(DeckType::WithJokers);
+        draw.extend(crate::models::deck::Deck::new(
+            crate::models::card::DeckType::WithJokers,
         ));
-        deck.shuffle();
+        draw.shuffle();
         let mut players = vec![];
         for i in 0..4 {
             players.push(crate::models::player::Player {
                 name: format!("Player {}", i),
-                hand: deck.draw_cards(10)?,
+                hand: draw.pop_n(10)?,
             });
         }
 
         let state = Self::S {
-            deck,
+            draw,
+            discard: Deck::new(crate::models::card::DeckType::Empty),
             players,
             turn: 0,
         };
